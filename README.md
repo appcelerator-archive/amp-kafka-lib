@@ -4,6 +4,8 @@ Provides `KafkaProducer` and `KafkaConsumer` wrapperes for `kafka-node`
 
 See `test/test.js` for usage as well as the documentation for `kafka-node` for options.
 
+Depends on [appcelerator/docker-kafka](https://github.com/appcelerator/docker-kafka)
+
 ## development
 
 Make/run support provided through `atomiq-cli`:
