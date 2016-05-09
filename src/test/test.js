@@ -1,10 +1,5 @@
-// disable for mocha test
+// disable for mocha tests
 /* eslint-disable no-invalid-this */
-
-// TODO fix esformatter when there is time
-/* eslint-disable babel/object-curly-spacing */
-
-// TODO remove after debugging
 /* eslint-disable no-console */
 
 import 'babel-polyfill';
@@ -13,6 +8,18 @@ import 'source-map-support/register';
 import { KafkaConsumer, KafkaProducer } from '..'
 import assert from 'assert';
 import pkg from '../../package.json'
+
+before(function(done) {
+  let wait = 9 * 1000
+  let timeout = wait + 1000
+  this.timeout(timeout)
+
+  console.log(`test will wait for ${wait / 1000} seconds to give services time to finish initializing`)
+  setTimeout(() => {
+    console.log('starting tests')
+    done()
+  }, wait)
+})
 
 describe('kafka tests', function() {
   let topic = 'service-start'
@@ -32,6 +39,7 @@ describe('kafka tests', function() {
     assert.equal(result, 'All requests sent')
 
     await producer.sendMessage(topic, message)
+    await producer.close()
 
     let payloads = [{
       topic: topic
@@ -40,7 +48,6 @@ describe('kafka tests', function() {
     let received = await consumer.waitMessage()
     assert.equal(received.topic, topic)
     assert.equal(received.value, message)
-
-    await producer.close()
+    await consumer.close()
   })
 })
