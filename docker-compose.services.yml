@@ -1,0 +1,46 @@
+version: "2"
+networks:
+  default:
+    external:
+      name: amp-swarm
+services:
+  consul:
+    image: appcelerator/consul:latest-server
+    hostname: consul
+    ports:
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:53/udp"
+    command:
+      [ "-bootstrap"]
+  zookeeper:
+    image: appcelerator/zookeeper:latest
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+    environment:
+      CONSUL: consul:8500
+    depends_on:
+      - consul
+  kafka:
+    image: appcelerator/kafka:latest
+    hostname: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      ZOOKEEPER_CONNECT: zookeeper:2181
+      CONSUL: consul:8500
+    depends_on:
+      - zookeeper
+  kafka-manager:
+    image: sheepkiller/kafka-manager
+    ports:
+      - "80:9000"
+    environment:
+      ZK_HOSTS: zookeeper:2181
+      CONSUL: consul:8500
+    depends_on:
+      - zookeeper
+      - kafka
+

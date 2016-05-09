@@ -1,0 +1,11 @@
+version: '2'
+services:
+  app:
+    build: .
+    image: amp-service-worker
+    environment:
+      DEBUG: app*
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      [ "node", "./dist/app.js" ]

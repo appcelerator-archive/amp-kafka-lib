@@ -1,0 +1,12 @@
+version: "2"
+networks:
+  default:
+    external:
+      name: amp-swarm
+services:
+  app:
+    extends:
+      file: docker-compose.common.yml
+      service: app
+    volumes:
+      - ./dist:/usr/src/app/dist
