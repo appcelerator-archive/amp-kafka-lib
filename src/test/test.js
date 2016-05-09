@@ -10,9 +10,8 @@
 import 'babel-polyfill';
 import 'source-map-support/register';
 
+import { KafkaConsumer, KafkaProducer } from '..'
 import assert from 'assert';
-import KafkaConsumer from '../KafkaConsumer'
-import KafkaProducer from '../KafkaProducer'
 import pkg from '../../package.json'
 
 describe('kafka tests', function() {
