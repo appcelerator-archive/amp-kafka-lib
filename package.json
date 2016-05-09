@@ -6,7 +6,7 @@
     "test": "mocha ./dist/test",
     "lint": "eslint src",
     "format": "esformatter -i 'src/**/*.js'",
-    "prepublish": "atomiq make babel"
+    "postinstall": "atomiq make babel"
   },
   "dependencies": {
     "atomiq": "^1.0.6",
