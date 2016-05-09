@@ -5,10 +5,12 @@
   "scripts": {
     "test": "mocha ./dist/test",
     "lint": "eslint src",
-    "format": "esformatter -i 'src/**/*.js'"
+    "format": "esformatter -i 'src/**/*.js'",
+    "prepublish": "atomiq make babel"
   },
   "dependencies": {
     "atomiq": "^1.0.6",
+    "atomiq-cli": "^1.0.0-alpha.20",
     "babel-polyfill": "^6.3.14",
     "bluebird": "^3.3.5",
     "bunyan": "^1.8.1",
