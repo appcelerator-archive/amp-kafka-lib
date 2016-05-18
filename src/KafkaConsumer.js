@@ -1,17 +1,18 @@
-import { HighLevelConsumer } from 'kafka-node'
-import Kafka from './Kafka'
-import { promisify } from 'bluebird'
+import { HighLevelConsumer } from 'kafka-node';
+import Kafka from './Kafka';
+import { promisify } from 'bluebird';
 
 export default class KafkaConsumer extends Kafka {
 
-  constructor(payloads, options) {
+  constructor(payloads, options, consumerGroup) {
     super(options)
 
     this.consumer = new HighLevelConsumer(
       this.client,
       payloads,
       {
-        autoCommit: true
+        autoCommit: true,
+        groupId: consumerGroup
       }
     )
 

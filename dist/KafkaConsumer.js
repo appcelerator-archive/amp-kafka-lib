@@ -25,13 +25,14 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var KafkaConsumer = function (_Kafka) {
   _inherits(KafkaConsumer, _Kafka);
 
-  function KafkaConsumer(payloads, options) {
+  function KafkaConsumer(payloads, options, consumerGroup) {
     _classCallCheck(this, KafkaConsumer);
 
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(KafkaConsumer).call(this, options));
 
     _this.consumer = new _kafkaNode.HighLevelConsumer(_this.client, payloads, {
-      autoCommit: true
+      autoCommit: true,
+      groupId: consumerGroup
     });
 
     // promisify consumer functions
