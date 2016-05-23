@@ -1,6 +1,6 @@
-import { HighLevelProducer } from 'kafka-node'
-import Kafka from './Kafka'
-import { promisify } from 'bluebird'
+import { HighLevelProducer } from 'kafka-node';
+import Kafka from './Kafka';
+import { promisify } from 'bluebird';
 
 export default class KafkaProducer extends Kafka {
 
@@ -47,7 +47,7 @@ export default class KafkaProducer extends Kafka {
   async sendMessage(topic, message, key, attributes) {
     let payloads = [{
       topic: topic,
-      messages: message,
+      messages: message
     }]
 
     if (key) {
