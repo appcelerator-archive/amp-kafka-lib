@@ -2,11 +2,9 @@
 /* eslint-disable no-invalid-this */
 /* eslint-disable no-console */
 
-import 'babel-polyfill';
-import 'source-map-support/register';
-
+import 'source-map-support/register'
 import { KafkaConsumer, KafkaProducer } from '..'
-import assert from 'assert';
+import assert from 'assert'
 import pkg from '../../package.json'
 
 before(function(done) {

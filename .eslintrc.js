@@ -30,7 +30,7 @@ module.exports = {
       "objectsInObjects": false,
       "arraysInObjects": false
     }],
-    "babel/object-shorthand": 0,
+    "babel/object-shorthand": 1,
     "babel/arrow-parens": 0,
     "babel/no-await-in-loop": 1,
     "babel/flow-object-type": 1,
@@ -244,4 +244,4 @@ module.exports = {
       "never"
     ]
   }
-};
+}

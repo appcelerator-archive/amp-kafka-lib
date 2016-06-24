@@ -4,178 +4,126 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 var _kafkaNode = require('kafka-node');
 
-var _Kafka2 = require('./Kafka');
+var _Kafka = require('./Kafka');
 
-var _Kafka3 = _interopRequireDefault(_Kafka2);
+var _Kafka2 = _interopRequireDefault(_Kafka);
 
 var _bluebird = require('bluebird');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _asyncToGenerator(fn) {
+  return function() {
+    var gen = fn.apply(this, arguments);
+    return new Promise(function(resolve, reject) {
+      function step(key, arg) {
+        try {
+          var info = gen[key](arg);
+          var value = info.value;
+        } catch (error) {
+          reject(error);
+          return;
+        }
+        if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function(value) { return step("next", value); }, function(err) { return step("throw", err); }); }
+      }
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+      return step("next");
+    });
+  };
+}
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+class KafkaConsumer extends _Kafka2.default {
 
-var KafkaConsumer = function (_Kafka) {
-  _inherits(KafkaConsumer, _Kafka);
+  constructor(payloads, options, consumerGroup) {
+    super(options);
 
-  function KafkaConsumer(payloads, options, consumerGroup) {
-    _classCallCheck(this, KafkaConsumer);
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(KafkaConsumer).call(this, options));
-
-    _this.consumer = new _kafkaNode.HighLevelConsumer(_this.client, payloads, {
+    this.consumer = new _kafkaNode.HighLevelConsumer(this.client, payloads, {
       autoCommit: true,
       groupId: consumerGroup
     });
 
     // promisify consumer functions
     // manually promisify addTopics because callback is in the middle of the params list
-    _this.addTopicsAsync = function (topics, fromOffset) {
-      return new Promise(function (resolve, reject) {
-        _this.consumer.addTopics(topics, function (err, added) {
+    this.addTopicsAsync = (topics, fromOffset) => {
+      return new Promise((resolve, reject) => {
+        this.consumer.addTopics(topics, (err, added) => {
           if (err) return reject(err);
           return resolve(added);
         }, fromOffset);
       });
     };
-    _this.consumer.removeTopicsAsync = (0, _bluebird.promisify)(_this.consumer.removeTopics);
-    _this.consumer.commitAsync = (0, _bluebird.promisify)(_this.consumer.commit);
-    _this.consumer.closeAsync = (0, _bluebird.promisify)(_this.consumer.close);
+    this.consumer.removeTopicsAsync = (0, _bluebird.promisify)(this.consumer.removeTopics);
+    this.consumer.commitAsync = (0, _bluebird.promisify)(this.consumer.commit);
+    this.consumer.closeAsync = (0, _bluebird.promisify)(this.consumer.close);
 
     // delegate consumer events
-    var events = ['message', 'error', 'offsetOutOfRange'];
-    events.forEach(function (event) {
-      _this.consumer.on(event, function () {
-        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-
-        _this.emit.apply(_this, [event].concat(args));
+    let events = ['message', 'error', 'offsetOutOfRange'];
+    events.forEach(event => {
+      this.consumer.on(event, (...args) => {
+        this.emit(event, ...args);
       });
     });
-    return _this;
   }
 
-  _createClass(KafkaConsumer, [{
-    key: 'addTopics',
-    value: function addTopics(topics) {
-      return regeneratorRuntime.async(function addTopics$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              _context.next = 2;
-              return regeneratorRuntime.awrap(this.createTopicsAsync(topics, true));
+  addTopics(topics) {
+    var _this = this;
 
-            case 2:
-              return _context.abrupt('return', _context.sent);
+    return _asyncToGenerator(function*() {
+      return yield _this.createTopicsAsync(topics, true);
+    })();
+  }
 
-            case 3:
-            case 'end':
-              return _context.stop();
-          }
-        }
-      }, null, this);
-    }
-  }, {
-    key: 'close',
-    value: function close(force) {
-      return regeneratorRuntime.async(function close$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              _context2.next = 2;
-              return regeneratorRuntime.awrap(this.consumer.closeAsync(force));
+  close(force) {
+    var _this2 = this;
 
-            case 2:
-            case 'end':
-              return _context2.stop();
-          }
-        }
-      }, null, this);
-    }
-  }, {
-    key: 'commit',
-    value: function commit() {
-      return regeneratorRuntime.async(function commit$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              _context3.next = 2;
-              return regeneratorRuntime.awrap(this.consumer.commitAsync());
+    return _asyncToGenerator(function*() {
+      yield _this2.consumer.closeAsync(force);
+    })();
+  }
 
-            case 2:
-            case 'end':
-              return _context3.stop();
-          }
-        }
-      }, null, this);
-    }
-  }, {
-    key: 'pause',
-    value: function pause() {
-      this.consumer.pause();
-    }
+  commit() {
+    var _this3 = this;
 
-    /**
-     * topics: https://github.com/SOHU-Co/kafka-node#removetopicstopics-cb-1
-     */
+    return _asyncToGenerator(function*() {
+      yield _this3.consumer.commitAsync();
+    })();
+  }
 
-  }, {
-    key: 'removeTopics',
-    value: function removeTopics(topics) {
-      return regeneratorRuntime.async(function removeTopics$(_context4) {
-        while (1) {
-          switch (_context4.prev = _context4.next) {
-            case 0:
-              _context4.next = 2;
-              return regeneratorRuntime.awrap(this.consumer.removeTopicsAsync(topics));
+  pause() {
+    this.consumer.pause();
+  }
 
-            case 2:
-              return _context4.abrupt('return', _context4.sent);
+  /**
+   * topics: https://github.com/SOHU-Co/kafka-node#removetopicstopics-cb-1
+   */
+  removeTopics(topics) {
+    var _this4 = this;
 
-            case 3:
-            case 'end':
-              return _context4.stop();
-          }
-        }
-      }, null, this);
-    }
-  }, {
-    key: 'resume',
-    value: function resume() {
-      this.consumer.resume();
-    }
+    return _asyncToGenerator(function*() {
+      return yield _this4.consumer.removeTopicsAsync(topics);
+    })();
+  }
 
-    /**
-     * offset: https://github.com/SOHU-Co/kafka-node#offset
-     */
+  resume() {
+    this.consumer.resume();
+  }
 
-  }, {
-    key: 'setOffset',
-    value: function setOffset(topic, partition, offset) {
-      this.consumer.setOffset(topic, partition, offset);
-    }
-  }, {
-    key: 'waitMessage',
-    value: function waitMessage() {
-      var _this2 = this;
+  /**
+   * offset: https://github.com/SOHU-Co/kafka-node#offset
+   */
+  setOffset(topic, partition, offset) {
+    this.consumer.setOffset(topic, partition, offset);
+  }
 
-      return new Promise(function (resolve, reject) {
-        _this2.consumer.on('message', resolve);
-        _this2.consumer.on('error', reject);
-        _this2.consumer.on('offsetOutOfRange', reject);
-      });
-    }
-  }]);
-
-  return KafkaConsumer;
-}(_Kafka3.default);
-
+  waitMessage() {
+    return new Promise((resolve, reject) => {
+      this.consumer.on('message', resolve);
+      this.consumer.on('error', reject);
+      this.consumer.on('offsetOutOfRange', reject);
+    });
+  }
+}
 exports.default = KafkaConsumer;
+//# sourceMappingURL=KafkaConsumer.js.map
