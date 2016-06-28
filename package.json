@@ -1,10 +1,11 @@
 {
   "name": "amp-kafka",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Kafka node wrapper",
   "scripts": {
     "prepublish": "npm run build",
-    "build": "rm -rf ./dist && cp -rv src ./dist && babel src -d ./dist --source-maps",
+    "postinstall": "npm run build",
+    "build": "cp -r src dist && babel src -d dist --source-maps",
     "babel": "babel-node src/app.js",
     "test": "mocha --compilers js:babel-register src/test",
     "cover": "npm run build && isparta cover --root dist/test --report html mocha -- --recursive dist/test/**/*.js",
