@@ -2,15 +2,13 @@
 /* eslint-disable no-invalid-this */
 /* eslint-disable no-console */
 
-import 'babel-polyfill';
-import 'source-map-support/register';
-
+import 'source-map-support/register'
 import { KafkaConsumer, KafkaProducer } from '..'
-import assert from 'assert';
+import assert from 'assert'
 import pkg from '../../package.json'
 
 before(function(done) {
-  let wait = 9 * 1000
+  let wait = 30 * 1000
   let timeout = wait + 1000
   this.timeout(timeout)
 
@@ -22,7 +20,7 @@ before(function(done) {
 })
 
 describe('kafka tests', function() {
-  let topic = 'service-start'
+  let topic = 'amp-service-start'
   let message = 'hello'
   let options = {
     connectionString: 'zookeeper:2181',
