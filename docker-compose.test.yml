@@ -1,0 +1,88 @@
+version: '2'
+services:
+  lib:
+    build: .
+    image: amp-kafka-lib
+    environment:
+      DEBUG: lib*
+      NODE_ENV: development
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./coverage:/usr/src/app/coverage
+    command: "npm test"
+    depends_on:
+      - consul
+      - amp-log-agent
+      - zookeeper
+      - kafka
+
+  # store
+  consul:
+    image: appcelerator/consul:latest-server
+    hostname: consul
+    ports:
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:53/udp"
+    command:
+      [ "-bootstrap"]
+
+  # member
+  amp-log-agent:
+    image: appcelerator/amp-log-agent:latest
+    volumes:
+       - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "12201:12201/udp"
+    environment:
+      DEBUG: app*
+      ZOOKEEPER_CONNECT: zookeeper:2181
+      CONSUL: consul:8500
+      CP_POLL: 1
+      CP_POLL_DEP: 1
+      CP_RESTART_DELAY: 1
+
+  zookeeper:
+    image: appcelerator/zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+    environment:
+      CONSUL: consul:8500
+      CP_POLL: 1
+      CP_POLL_DEP: 1
+      CP_RESTART_DELAY: 1
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+    labels:
+      - "ServiceUUId=system.zookeeper"
+    depends_on:
+      - consul
+      - amp-log-agent
+
+  kafka:
+    image: appcelerator/kafka:latest
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      ZOOKEEPER_CONNECT: zookeeper:2181
+      CONSUL: consul:8500
+      TOPIC_LIST: "amp-logs amp-service-start amp-service-stop amp-service-terminate amp-service-scale amp-docker-events amp-service-events telegraf"
+      CP_POLL: 1
+      CP_POLL_DEP: 1
+      CP_RESTART_DELAY: 1
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+    labels:
+      - "ServiceUUId=system.kafka"
+    depends_on:
+      - zookeeper
+      - amp-log-agent
